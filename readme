@@ -1,0 +1,126 @@
+FILE
+	2.c
+
+AUTHOR
+	MG Hirsch
+	mghirsch@ou.edu
+	University of Oklahoma
+
+DATE
+	December 2017
+
+DESCRIPTION
+
+	Records memory allocation based on the chosen algorithm. For each 
+	line in the given file, the program will print the line	console, 
+	perform the given command, and print the results.
+
+	Commands
+		REQUEST A n	: Allocated n bytes for a process named A.
+				  Output: ALLOCATED A x where x is the 
+				  relative address of A.
+				  On error: FAIL REQUEST A n.
+		RELEASE A	: Releases the memory held by a process A.
+				  Output: FREE A n x where n is the amount
+				  of memory reclaimed and x is the relative
+				  address of A.
+				  On error: FAIL RELEASE A.
+		LIST AVAILABLE	: Prints location information for all 
+				  available memory. If no available memory,
+				  prints FULL.
+				  Output: (n, x) for each process, where n is 
+				  the amount available and x is the relative
+				  address.
+		LIST ASSIGNED	: Prints information for all assigned memory.
+				  If no allocated memory, prints NONE.
+				  Output: (A, n, x) for each processes 
+				  where A is the process name, n is the size 
+				  of A, and x is the relative address of A. 
+		FIND A		: Locates the starting address and size 
+				  allocated by the process A. On error, 
+				  prints NO PROCESS A.
+				  Output: (A, n, x) where n is the size of A
+				  and x is the relative address of A. 
+
+	Algorithms
+		First Fit	: Allocate the next process to the first
+				  location in memory that is large enough.
+		Next Fit	: Allocate the next process to the next
+				  location (relative to the last process
+				  added) in memory that is large enough.
+		Best Fit	: Allocate the next process to the location
+				  in memory that is the closest to the
+				  process's size.
+		Buddy System	: Divide memory as needed following a binary
+				  left-first division system. Allocate the 
+				  next process to the left-most smallest 
+				  possible chunk available.
+	Implementation		
+		All algorithms were implemented naively. A char* array was
+		used to simulate the memory, with the contents of each cell
+		containing the name of the process "using" that memory (if
+		the memory was free, the cell contained NULL). 
+		
+		First fit was implemented by looping through the memory
+		array starting at 0 and counting the size of each chunk of 
+		consecutive free memory cells, inserting the memory at the 
+		first chunk large enough.
+
+		Next fit was implemented in a similar fashion, but started
+		at the location of the last process that was added and then
+		looping back to 0 when the end of the array was reached.
+
+		Best fit was implemented in a similar fashion. Starting with
+		a bestfit size of 0, when a chunk of free memory was found, 
+		the size was compared to the size of the current best fit, 
+		replacing the current best fit if it was closer to the 
+		needed amount of memory.
+
+		Buddy system was implemented by dividing the memory into 
+		the smallest possible 2^k chucks that would contain the new
+		processes. The location for the new process was found by 
+		looping through the memory (starting at 0) and using the 
+		first empty chunk.
+
+		The other commands were implemented by looping through
+		memory starting from 0 and performing the appropriate
+		operation (set cell to NULL, return an index, etc).
+
+
+SCRIPT FILE
+
+	The script file is a series of the commands as defined above. Lines
+	prefixed with "#" represent comments. When executed, these comments
+	will be printed but will otherwise not effect the result.
+
+
+COMPILATION
+
+	make, make -all	: compiles all files in project
+	make -clean	: deletes previous executables and compiles
+			  all files in project
+
+RUN
+
+	./2 BESTFIT N inputfile
+	./2 FIRSTFIT N inputfile
+	./2 NEXTFIT N inputfile
+	./2 BUDDY N inputfile
+
+
+KNOWN BUGS
+	
+	If requested to add a process with the same name as a process
+	already allocated in memory, the program will create a new process
+	with the same name. If processes are placed consecutively in memory,
+	they will be treated as one process. If they are placed seperately,
+	RELEASE and FIND will act of the process with the lowest relative
+	memory location.
+
+	If the script file provided includes consecutive newline characters,
+	the program will throw a segmentation fault and exit.
+
+	If the script file provided includes commands not listed above,
+	the command will be printed but no action will be taken.
+	
+	
